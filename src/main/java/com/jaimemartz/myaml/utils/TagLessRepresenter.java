@@ -1,13 +1,10 @@
-package com.jaimemartz.myamltests.test4.objects;
+package com.jaimemartz.myaml.utils;
 
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.nodes.Node;
-import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.util.Map;
 import java.util.Set;
 
 public class TagLessRepresenter extends Representer {

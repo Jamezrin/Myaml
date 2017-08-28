@@ -1,31 +1,27 @@
 package com.jaimemartz.myamltests.test4;
 
 import com.jaimemartz.myamltests.objects.TestBean;
-import com.jaimemartz.myamltests.test4.objects.TagLessConstructor;
-import com.jaimemartz.myamltests.test4.objects.TagLessRepresenter;
-import org.junit.After;
+import com.jaimemartz.myaml.utils.TagLessConstructor;
+import com.jaimemartz.myaml.utils.TagLessRepresenter;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.nodes.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+import static org.junit.Assert.assertNotNull;
+
 public class PracticalUseTest {
-    private Map<String, Object> map = new HashMap<>();
     private String output = null;
     private Yaml yaml = null;
 
     @Before
     public void setup() {
+        Map<String, Object> map = new HashMap<>();
+
         //Map
         Map<String, Object> beanMap = new HashMap<>();
 
@@ -61,17 +57,21 @@ public class PracticalUseTest {
         map.put("beans-list", beanList);
         map.put("single-bean", singleBean);
 
+        //Preparation for loading and initial dump
         TagLessConstructor constructor = new TagLessConstructor();
-        constructor.putMapPropertyType("beans-map", String.class, TestBean.class);
-        constructor.putListPropertyType("beans-list", TestBean.class);
-        constructor.putPropertyType("single-bean", TestBean.class);
+        constructor.setMapPropertyTypes("beans-map", String.class, TestBean.class);
+        constructor.setListPropertyType("beans-list", TestBean.class);
+        constructor.setPropertyType("single-bean", TestBean.class);
 
-        TagLessRepresenter representer = new TagLessRepresenter();
-        yaml = new Yaml(constructor, representer);
-        output = yaml.dump(map);
+        yaml = new Yaml(constructor, new TagLessRepresenter());
+
+        Map<String, Object> other = new HashMap<>();
+        other.put("stuff", map);
+        output = yaml.dump(other);
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void softLoad() {
         System.out.println("Soft load:");
         Map<String, Object> loaded = (Map<String, Object>) yaml.load(output);
@@ -79,21 +79,20 @@ public class PracticalUseTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void hardLoad() {
         System.out.println("Hard load:");
         Map<String, Object> loaded = (Map<String, Object>) yaml.load(output);
 
+        loaded = (Map<String, Object>) loaded.get("stuff");
+
         Map<String, TestBean> beanMap = (Map<String, TestBean>) loaded.get("beans-map");
-        beanMap.forEach((k, v) -> {
-            System.out.println(String.format("Key: %s, Value: %s", k, v.toString()));
-        });
+        assertNotNull(beanMap);
 
         List<TestBean> beanList = (List<TestBean>) loaded.get("beans-list");
-        beanList.forEach(v -> {
-            System.out.println(String.format("Value: %s", v.toString()));
-        });
+        assertNotNull(beanList);
 
         TestBean singleBean = (TestBean) loaded.get("single-bean");
-        System.out.println(String.format("Value: %s", singleBean.toString()));
+        assertNotNull(singleBean);
     }
 }

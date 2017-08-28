@@ -1,4 +1,4 @@
-package com.jaimemartz.myamltests.test4.objects;
+package com.jaimemartz.myaml.utils;
 
 import java.util.Map;
 
